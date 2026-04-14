@@ -1,25 +1,10 @@
 import requests
 import csv
-from datetime import datetime
-
+import argparse
 API_URL = "https://public-api.linearb.io/api/"
-API_KEY = "YOUR API KEY"
-
-HEADERS = {
-    "x-api-key": API_KEY
-}
 
 
-# -----------------------------
-# USER INPUT 
-# -----------------------------
-START_DATE = "2025-03-01"  # YYYY-MM-DD
-END_DATE = "2025-03-31"    # YYYY-MM-DD
-OUTPUT_FILE = "linearb_code_changes.csv"
-# -----------------------------
-
-
-def fetch_team_ids():
+def fetch_team_ids(HEADERS):
     """
     Pull all team IDs from LinearB
     """
@@ -39,7 +24,7 @@ def fetch_team_ids():
 
     return [t["id"] for t in teams]
 
-def fetch_contributors():
+def fetch_contributors(HEADERS):
     """
     Pull all contributor IDs and names/emails from LinearB, handling pagination
     """
@@ -77,7 +62,7 @@ def fetch_contributors():
     return contributors
 
 
-def build_metrics_query(start_iso, end_iso, team_ids):
+def build_metrics_query(start_date, end_date, team_ids):
 
     return {
         "group_by": "contributor",
@@ -92,8 +77,8 @@ def build_metrics_query(start_iso, end_iso, team_ids):
         ],
         "time_ranges": [
             {
-            "after": start_iso,
-            "before": end_iso
+            "after": start_date,
+            "before": end_date
             }
         ],
         "team_ids": team_ids
@@ -101,8 +86,8 @@ def build_metrics_query(start_iso, end_iso, team_ids):
     
 
 
-def fetch_metrics(start_iso, end_iso, team_ids):
-    payload = build_metrics_query(start_iso, end_iso, team_ids)
+def fetch_metrics(HEADERS, start_date, end_date, team_ids):
+    payload = build_metrics_query(start_date, end_date, team_ids)
 
     response = requests.post(API_URL + 'v2/measurements', json=payload, headers=HEADERS)
 
@@ -138,11 +123,28 @@ def write_csv(results, contributors, output_file):
             })
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Fetch LinearB metrics and save to CSV.")
+    parser.add_argument("--start-date", required=True, help="Start date in YYYY-MM-DD format")
+    parser.add_argument("--end-date", required=True, help="End date in YYYY-MM-DD format")
+    parser.add_argument("--api-key", required=True, help="LinearB API key")
+    parser.add_argument("--output-file", required=True, help="Output CSV file name")
+
+    args = parser.parse_args()
+
+    START_DATE = args.start_date
+    END_DATE = args.end_date
+    API_KEY = args.api_key
+    OUTPUT_FILE = args.output_file
+
+    HEADERS = {
+    "x-api-key": API_KEY
+    }
+
     print(f"Fetching data from {START_DATE} to {END_DATE}...")
 
-    team_ids = fetch_team_ids()
-    contributors = fetch_contributors()
-    results = fetch_metrics(START_DATE, END_DATE, team_ids)
+    team_ids = fetch_team_ids(HEADERS)
+    contributors = fetch_contributors(HEADERS)
+    results = fetch_metrics(HEADERS, START_DATE, END_DATE, team_ids)
 
     write_csv(results, contributors, OUTPUT_FILE)
     print(f"CSV written to {OUTPUT_FILE}")
