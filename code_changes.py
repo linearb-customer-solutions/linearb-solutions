@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 API_URL = "https://public-api.linearb.io/api/"
-API_KEY = "5273a1d13f91d6ccbd137cd47d6990b8"
+API_KEY = "YOUR API KEY"
 
 HEADERS = {
     "x-api-key": API_KEY
