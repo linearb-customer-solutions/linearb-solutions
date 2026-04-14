@@ -70,9 +70,6 @@ def build_metrics_query(start_date, end_date, team_ids):
         "requested_metrics": [
             {
             "name": "commit.total_changes"
-            },
-            {
-            "name": "commit.activity.new_work.count"
             }
         ],
         "time_ranges": [
