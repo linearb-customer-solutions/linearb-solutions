@@ -120,6 +120,10 @@ def write_csv(results, contributors, output_file):
             })
 
 if __name__ == "__main__":
+    """
+    Example usage:: py .\code_changes.py --start-date 2026-01-01 --end-date 2026-01-31 --api-key <API KEY> --output-file output.csv
+    """
+
     parser = argparse.ArgumentParser(description="Fetch LinearB metrics and save to CSV.")
     parser.add_argument("--start-date", required=True, help="Start date in YYYY-MM-DD format")
     parser.add_argument("--end-date", required=True, help="End date in YYYY-MM-DD format")
